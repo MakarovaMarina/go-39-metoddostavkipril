@@ -5,7 +5,7 @@ stages:
 
 variables:
   PUBLIC_REGISTRY_HOST: docker.io
-  PUBLIC_REGISTRY_OWNER: scherkesov1006
+  PUBLIC_REGISTRY_OWNER: lekan18
   PUBLIC_REGISTRY_APP_NAME: module-39
 
 build_app:
@@ -16,7 +16,6 @@ build_app:
 
 test:
   stage: test
-  image: golang:1.15
   script:
     - echo "No tests!"
 
@@ -35,9 +34,11 @@ build_image:stable:
   services:
     - docker:dind
   script:
-    - echo "No build image commands!!!"
+    - docker login -u $PUBLIC_REGISTRY_OWNER -p $CI_REGISTRY_PASSWORD $PUBLIC_REGISTRY_HOST
+    - docker build -t $PUBLIC_REGISTRY_HOST/$PUBLIC_REGISTRY_OWNER/$PUBLIC_REGISTRY_APP_NAME:$CI_COMMIT_REF_NAME .
+    - docker push $PUBLIC_REGISTRY_HOST/$PUBLIC_REGISTRY_OWNER/$PUBLIC_REGISTRY_APP_NAME:$CI_COMMIT_REF_NAME
   only:
-    - master
+    - main
 
 build_image:latest:
   stage: image
@@ -45,5 +46,7 @@ build_image:latest:
   services:
     - docker:dind
   script:
-    - echo "No build image commands!!!"
+    - docker login -u $PUBLIC_REGISTRY_OWNER -p $CI_REGISTRY_PASSWORD $PUBLIC_REGISTRY_HOST
+    - docker build -t $PUBLIC_REGISTRY_HOST/$PUBLIC_REGISTRY_OWNER/$PUBLIC_REGISTRY_APP_NAME:latest .
+    - docker push $PUBLIC_REGISTRY_HOST/$PUBLIC_REGISTRY_OWNER/$PUBLIC_REGISTRY_APP_NAME:latest
   when: manual
